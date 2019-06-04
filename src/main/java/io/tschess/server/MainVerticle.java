@@ -16,7 +16,6 @@ public class MainVerticle extends AbstractVerticle {
             Future<String> httpServerVerticleDeployment = Future.future();
             vertx.deployVerticle("io.tschess.server.HttpServerVerticle", new DeploymentOptions(), httpServerVerticleDeployment.completer());
             return httpServerVerticleDeployment;
-
         }).setHandler(asyncResult -> {
             if (asyncResult.succeeded()) {
                 future.complete();
