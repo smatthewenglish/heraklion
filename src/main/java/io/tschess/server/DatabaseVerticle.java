@@ -121,28 +121,28 @@ public class DatabaseVerticle extends AbstractVerticle {
 
     private void gameCreateInstance(Message<JsonObject> message) {
 
+        System.out.println("----------");
+
         //--------
         String identifier = message.body().getString("identifier");
+        System.out.println("identifier" + identifier);
+
         String usernameWhite = message.body().getString("username_white");
+        System.out.println("username_white" + usernameWhite);
+
         String configurationWhite = message.body().getJsonArray("configuration_white").toString();
         //--------
         String usernameBlack = message.body().getString("username_black");
         String configurationBlack = message.body().getJsonArray("configuration_black").toString();
         //--------
-        String usernameTurn = message.body().getString("username_turn");
-        String inviterId = message.body().getString("inviter_id");
-        String inviteeId = message.body().getString("invitee_id");
-        //--------
-        String gamestate = message.body().getJsonArray("gamestate").toString();
         String gameStatus = "DEFAULT";
-        String winner = "DEFAULT";
 
         String sql = "INSERT INTO game_table VALUES ('" + identifier + "', '"
                 + usernameWhite + "', '"
                 + configurationWhite + "', '"
                 + usernameBlack + "', '"
-                + configurationBlack + "', '"
-                + gameStatus + "')";
+                + configurationBlack + "', "
+                + gameStatus + ")";
 
         dbClient.update(sql, asyncResult -> {
             dbClient.close();
