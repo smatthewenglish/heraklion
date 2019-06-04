@@ -1,0 +1,14 @@
+
+
+
+./gradlew clean && ./gradlew fatJar && java -jar ./build/libs/my-first-app-all-1.0-SNAPSHOT.jar -conf src/main/conf/my-application-conf.json
+
+
+
+update games set accepted = 'false' where identifier = 'e178db4e-d10c-303c-8d34-b1f9291da092';
+
+
+
+./gradlew clean && ./gradlew fatJar && java -jar ./build/libs/server-all-1.0-SNAPSHOT.jar
+
+^RUN WITH THIS COMMAND, FROM SERVER DIR
