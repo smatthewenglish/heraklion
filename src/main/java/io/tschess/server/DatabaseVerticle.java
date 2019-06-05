@@ -135,7 +135,7 @@ public class DatabaseVerticle extends AbstractVerticle {
         String sql = "INSERT INTO user_table VALUES ('"
                 + identifier + "', '"
                 + username + "', '"
-                + password + ")";
+                + password + "')";
 
         dbClient.update(sql, asyncResult -> {
             dbClient.close();

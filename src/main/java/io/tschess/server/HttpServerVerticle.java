@@ -31,6 +31,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         Router router = Router.router(vertx);
         router.post().handler(BodyHandler.create());
         router.post("/game-create-instance").handler(this::gameCreateInstanceHandler);
+        router.post("/user-create-instance").handler(this::userCreateInstanceHandler);
 
         int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
         server
@@ -71,5 +72,9 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private void gameCreateInstanceHandler(RoutingContext context) {
         handler(context, "game-create-instance");
+    }
+
+    private void userCreateInstanceHandler(RoutingContext context) {
+        handler(context, "user-create-instance");
     }
 }
