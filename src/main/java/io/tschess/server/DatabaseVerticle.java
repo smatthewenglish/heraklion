@@ -5,10 +5,12 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.asyncsql.PostgreSQLClient;
+import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
 import io.vertx.ext.sql.SQLConnection;
 
@@ -25,7 +27,8 @@ public class DatabaseVerticle extends AbstractVerticle {
 
     private enum SqlQuery {
         GAME_CREATE_TABLE,
-        USER_CREATE_TABLE
+        USER_CREATE_TABLE,
+        USER_LOGIN
     }
 
     private final HashMap<SqlQuery, String> sqlQueries = new HashMap<>();
@@ -39,7 +42,9 @@ public class DatabaseVerticle extends AbstractVerticle {
         queriesInputStream.close();
 
         sqlQueries.put(SqlQuery.GAME_CREATE_TABLE, queriesProps.getProperty("game-create-table"));
+
         sqlQueries.put(SqlQuery.USER_CREATE_TABLE, queriesProps.getProperty("user-create-table"));
+        sqlQueries.put(SqlQuery.USER_LOGIN, queriesProps.getProperty("user-login"));
     }
 
     private SQLClient dbClient;
@@ -110,12 +115,49 @@ public class DatabaseVerticle extends AbstractVerticle {
             case "user-create-instance":
                 userCreateInstance(message);
                 break;
+            case "user-login":
+                userLogin(message);
+                break;
+            //* * *//
             case "game-create-instance":
                 gameCreateInstance(message);
                 break;
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
+    }
+
+    private void userLogin(Message<JsonObject> message) {
+
+        System.out.println("----------");
+
+        JsonArray username = new JsonArray().add(message.body().getString("username"));
+        String password = message.body().getString("password");
+
+        dbClient.queryWithParams(
+                sqlQueries.get(SqlQuery.USER_LOGIN),
+                username,
+                validatePasswordResult -> {
+                    JsonObject response = new JsonObject();
+                    response.put("response", "user-login");
+                    if (validatePasswordResult.succeeded()) {
+                        ResultSet resultSet = validatePasswordResult.result();
+                        if (resultSet.getNumRows() == 0) {
+                            response.put("result", "username");
+                        } else {
+                            String retrievedPassword = resultSet.getResults().get(0).getString(0);
+                            if (retrievedPassword.equals(password)) {
+                                response.put("result", "success");
+                            } else {
+                                response.put("result", "password");
+                            }
+                        }
+                        message.reply(response);
+                    } else {
+                        reportQueryError(message, validatePasswordResult.cause());
+                    }
+                });
+        dbClient.close();
     }
 
     private void userCreateInstance(Message<JsonObject> message) {
