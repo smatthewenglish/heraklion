@@ -231,7 +231,10 @@ curl --header "Content-Type: application/json" --request POST --data '{"identifi
 
  [{"row_0": [{"column_0": "BlackRook"},{"column_1": "BlackKnight"},{"column_2": "BlackBishop"},{"column_3": "BlackQueen"},{"column_4": "BlackKing"},{"column_5": "BlackBishop"},{"column_6": "BlackKnight"},{"column_7": "BlackRook"}]},
    {"row_1": [{"column_0": "BlackPawn"},{"column_1": "BlackPawn"},{"column_2": "BlackPawn"},{"column_3": "BlackPawn"},{"column_4": "BlackPawn"},{"column_5": "BlackPawn"},{"column_6": "BlackPawn"},{"column_7": "BlackPawn"}]}]
-, "username_turn":"jesus","inviter_id":"12345","invitee_id":"54321");
+, 
+"username_turn":"jesus",
+"inviter_id":"12345",
+"invitee_id":"54321");
 
 
 
