@@ -34,6 +34,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         router.post("/user-create-instance").handler(this::userCreateInstanceHandler);
         router.post("/user-login").handler(this::userLoginHandler);
+        router.post("/user-all").handler(this::userAllHandler);
 
         int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
         server
@@ -78,6 +79,10 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private void userLoginHandler(RoutingContext context) {
         handler(context, "user-login");
+    }
+
+    private void userAllHandler(RoutingContext context) {
+        handler(context, "user-all");
     }
 
     /* * */

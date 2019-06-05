@@ -17,7 +17,9 @@ import io.vertx.ext.sql.SQLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class DatabaseVerticle extends AbstractVerticle {
 
@@ -28,7 +30,8 @@ public class DatabaseVerticle extends AbstractVerticle {
     private enum SqlQuery {
         GAME_CREATE_TABLE,
         USER_CREATE_TABLE,
-        USER_LOGIN
+        USER_LOGIN,
+        USER_ALL
     }
 
     private final HashMap<SqlQuery, String> sqlQueries = new HashMap<>();
@@ -45,6 +48,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         sqlQueries.put(SqlQuery.USER_CREATE_TABLE, queriesProps.getProperty("user-create-table"));
         sqlQueries.put(SqlQuery.USER_LOGIN, queriesProps.getProperty("user-login"));
+        sqlQueries.put(SqlQuery.USER_ALL, queriesProps.getProperty("user-all"));
     }
 
     private SQLClient dbClient;
@@ -118,6 +122,9 @@ public class DatabaseVerticle extends AbstractVerticle {
             case "user-login":
                 userLogin(message);
                 break;
+            case "user-all":
+                userAll(message);
+                break;
             //* * *//
             case "game-create-instance":
                 gameCreateInstance(message);
@@ -125,6 +132,25 @@ public class DatabaseVerticle extends AbstractVerticle {
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
+    }
+
+    private void userAll(Message<JsonObject> message) {
+
+        dbClient.query(sqlQueries.get(SqlQuery.USER_ALL), res -> {
+            if (res.succeeded()) {
+                List<String> pages = res.result()
+                        .getResults()
+                        .stream()
+                        .map(json -> json.getString(0))
+                        .sorted()
+                        .collect(Collectors.toList());
+                message.reply(new JsonObject()
+                        .put("response", "user-all")
+                        .put("result", new JsonArray(pages)));
+            } else {
+                reportQueryError(message, res.cause());
+            }
+        });
     }
 
     private void userLogin(Message<JsonObject> message) {
