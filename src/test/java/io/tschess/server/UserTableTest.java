@@ -50,7 +50,7 @@ public class UserTableTest {
 
 curl --header "Content-Type: application/json" --request POST --data '{"identifier":"8","username":"xx","password":"xcx"}' http://localhost:8080/user-create-instance
 
-
+curl --header "Content-Type: application/json" --request POST --data '{"identifier":"8","username":"xx","password":"xcx"}' http://localhost:8080/user-create-instance
      */
 }
 
