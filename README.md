@@ -188,4 +188,68 @@ INSERT INTO game_table VALUES ('xcx', 'white_0', '[{"row_0": [{"column_0": "Whit
 
 
 curl --header "Content-Type: application/json" --request POST --data '{"identifier":"2019", "username_white":"jacob", "configuration_white":[{"row_0": [{"column_0": "WhiteRook"},{"column_1": "WhiteKnight"},{"column_2": "WhiteBishop"},{"column_3": "WhiteQueen"},{"column_4": "WhiteKing"},{"column_5": "WhiteBishop"},{"column_6": "WhiteKnight"},{"column_7": "WhiteRook"}]},{"row_1": [{"column_0": "WhitePawn"},{"column_1": "WhitePawn"},{"column_2": "WhitePawn"},{"column_3": "WhitePawn"},{"column_4": "WhitePawn"},{"column_5": "WhitePawn"},{"column_6": "WhitePawn"},{"column_7":"WhiteQueen"}]}], "username_black":"black_0", "configuration_black":[{"row_0": [{"column_0": "BlackRook"},{"column_1": "BlackKnight"},{"column_2": "BlackBishop"},{"column_3": "BlackQueen"},{"column_4": "BlackKing"},{"column_5": "BlackBishop"},{"column_6": "BlackKnight"},{"column_7": "BlackRook"}]},{"row_1": [{"column_0": "BlackPawn"},{"column_1": "BlackPawn"},{"column_2": "BlackPawn"},{"column_3": "BlackPawn"},{"column_4": "BlackPawn"},{"column_5": "BlackPawn"},{"column_6": "BlackPawn"},{"column_7":"BlackQueen"}]}]}' http://localhost:8080/game-create-instance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+curl --header "Content-Type: application/json" --request POST --data '{"identifier":"01010101", "username_white":"jesus", "configuration_white":
+
+ [{"row_0": [{"column_0": "WhiteRook"},{"column_1": "WhiteKnight"},{"column_2": "WhiteBishop"},{"column_3": "WhiteQueen"},{"column_4": "WhiteKing"},{"column_5": "WhiteBishop"},{"column_6": "WhiteKnight"},{"column_7": "WhiteRook"}]},
+   {"row_1": [{"column_0": "WhitePawn"},{"column_1": "WhitePawn"},{"column_2": "WhitePawn"},{"column_3": "WhitePawn"},{"column_4": "WhitePawn"},{"column_5": "WhitePawn"},{"column_6": "WhitePawn"},{"column_7": "WhitePawn"}]}]
+
+, "username_black":"blaxxxx", "configuration_black":
+
+ [{"row_0": [{"column_0": "BlackRook"},{"column_1": "BlackKnight"},{"column_2": "BlackBishop"},{"column_3": "BlackQueen"},{"column_4": "BlackKing"},{"column_5": "BlackBishop"},{"column_6": "BlackKnight"},{"column_7": "BlackRook"}]},
+   {"row_1": [{"column_0": "BlackPawn"},{"column_1": "BlackPawn"},{"column_2": "BlackPawn"},{"column_3": "BlackPawn"},{"column_4": "BlackPawn"},{"column_5": "BlackPawn"},{"column_6": "BlackPawn"},{"column_7": "BlackPawn"}]}]
+
+
+, "username_turn":"jesus","inviter_id":"12345","invitee_id":"54321")
+
+
+
+
+curl --header "Content-Type: application/json" --request POST --data '{"identifier":"01010101", "username_white":"jesus", "configuration_white":
+
+ [{"row_0": [{"column_0": "WhiteRook"},{"column_1": "WhiteKnight"},{"column_2": "WhiteBishop"},{"column_3": "WhiteQueen"},{"column_4": "WhiteKing"},{"column_5": "WhiteBishop"},{"column_6": "WhiteKnight"},{"column_7": "WhiteRook"}]},
+   {"row_1": [{"column_0": "WhitePawn"},{"column_1": "WhitePawn"},{"column_2": "WhitePawn"},{"column_3": "WhitePawn"},{"column_4": "WhitePawn"},{"column_5": "WhitePawn"},{"column_6": "WhitePawn"},{"column_7": "WhitePawn"}]}]
+
+, "username_black":"blaxxxx", "configuration_black":
+
+ [{"row_0": [{"column_0": "BlackRook"},{"column_1": "BlackKnight"},{"column_2": "BlackBishop"},{"column_3": "BlackQueen"},{"column_4": "BlackKing"},{"column_5": "BlackBishop"},{"column_6": "BlackKnight"},{"column_7": "BlackRook"}]},
+   {"row_1": [{"column_0": "BlackPawn"},{"column_1": "BlackPawn"},{"column_2": "BlackPawn"},{"column_3": "BlackPawn"},{"column_4": "BlackPawn"},{"column_5": "BlackPawn"},{"column_6": "BlackPawn"},{"column_7": "BlackPawn"}]}]
+, "username_turn":"jesus","inviter_id":"12345","invitee_id":"54321");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*this is the command to create the game_table*
+
+CREATE TABLE IF NOT EXISTS game_table (identifier VARCHAR (255) PRIMARY KEY NOT NULL, username_white VARCHAR (255), configuration_white JSON DEFAULT '[{"row_0": [{"column_0": "WhiteRook"},{"column_1": "WhiteKnight"},{"column_2": "WhiteBishop"},{"column_3": "WhiteQueen"},{"column_4": "WhiteKing"},{"column_5": "WhiteBishop"},{"column_6": "WhiteKnight"},{"column_7": "WhiteRook"}]}, {"row_1": [{"column_0": "WhitePawn"},{"column_1": "WhitePawn"},{"column_2": "WhitePawn"},{"column_3": "WhitePawn"},{"column_4": "WhitePawn"},{"column_5": "WhitePawn"},{"column_6": "WhitePawn"},{"column_7": "WhitePawn"}]}]', username_black VARCHAR (255), configuration_black JSON DEFAULT '[{"row_0": [{"column_0": "BlackRook"},{"column_1": "BlackKnight"},{"column_2": "BlackBishop"},{"column_3": "BlackQueen"},{"column_4": "BlackKing"},{"column_5": "BlackBishop"},{"column_6": "BlackKnight"},{"column_7": "BlackRook"}]},{"row_1": [{"column_0": "BlackPawn"},{"column_1": "BlackPawn"},{"column_2": "BlackPawn"},{"column_3": "BlackPawn"},{"column_4": "BlackPawn"},{"column_5": "BlackPawn"},{"column_6": "BlackPawn"},{"column_7": "BlackPawn"}]}]', username_turn VARCHAR (255), inviter_id VARCHAR (255), invitee_id VARCHAR (255), game_status VARCHAR (255) DEFAULT 'PROPOSED', gamestate JSON, winner VARCHAR (255))
+
+*^^^*
 ```
