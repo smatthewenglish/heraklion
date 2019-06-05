@@ -24,7 +24,8 @@ public class DatabaseVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseVerticle.class);
 
     private enum SqlQuery {
-        GAME_CREATE_TABLE
+        GAME_CREATE_TABLE,
+        USER_CREATE_TABLE
     }
 
     private final HashMap<SqlQuery, String> sqlQueries = new HashMap<>();
@@ -38,6 +39,7 @@ public class DatabaseVerticle extends AbstractVerticle {
         queriesInputStream.close();
 
         sqlQueries.put(SqlQuery.GAME_CREATE_TABLE, queriesProps.getProperty("game-create-table"));
+        sqlQueries.put(SqlQuery.USER_CREATE_TABLE, queriesProps.getProperty("user-create-table"));
     }
 
     private SQLClient dbClient;
@@ -57,22 +59,28 @@ public class DatabaseVerticle extends AbstractVerticle {
         dbClient.getConnection(connectionResult -> {
             if (connectionResult.succeeded()) {
                 SQLConnection connection = connectionResult.result();
-                connection.execute(sqlQueries.get(SqlQuery.GAME_CREATE_TABLE), createUsersTableResult -> {
+                connection.execute(sqlQueries.get(SqlQuery.USER_CREATE_TABLE), userCreateTableResult -> {
 
-                    if (createUsersTableResult.succeeded()) {
-                        connection.close();
+                    if (userCreateTableResult.succeeded()) {
+                        connection.execute(sqlQueries.get(SqlQuery.GAME_CREATE_TABLE), gameCreateTableResult -> {
+                            connection.close();
 
-                        EventBus eventBus = vertx.eventBus();
-                        MessageConsumer<JsonObject> consumer = eventBus.consumer(config().getString(CONFIG_QUEUE, "db.queue"));
-
-                        consumer.handler(message -> {
-                            System.out.println("Received message: " + message.body());
-                            onMessage(message);
+                            if (gameCreateTableResult.succeeded()) {
+                                EventBus eventBus = vertx.eventBus();
+                                MessageConsumer<JsonObject> consumer = eventBus.consumer(config().getString(CONFIG_QUEUE, "db.queue"));
+                                consumer.handler(message -> {
+                                    System.out.println("Received message: " + message.body());
+                                    onMessage(message);
+                                });
+                                future.complete();
+                            } else {
+                                LOGGER.error("Database preparation error", gameCreateTableResult.cause());
+                                future.fail(gameCreateTableResult.cause());
+                            }
                         });
-                        future.complete();
                     } else {
-                        LOGGER.error("Database preparation error", createUsersTableResult.cause());
-                        future.fail(createUsersTableResult.cause());
+                        LOGGER.error("Database preparation error", userCreateTableResult.cause());
+                        future.fail(userCreateTableResult.cause());
                     }
                 });
             } else {
@@ -99,12 +107,47 @@ public class DatabaseVerticle extends AbstractVerticle {
         String action = message.headers().get("action");
 
         switch (action) {
+            case "user-create-instance":
+                userCreateInstance(message);
+                break;
             case "game-create-instance":
                 gameCreateInstance(message);
                 break;
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
+    }
+
+    private void userCreateInstance(Message<JsonObject> message) {
+
+        System.out.println("----------");
+
+        //--------
+        String identifier = message.body().getString("identifier");
+        System.out.println("identifier" + identifier);
+
+        String username = message.body().getString("username");
+        System.out.println("username" + username);
+
+        String password = message.body().getString("password");
+        System.out.println("password" + password);
+
+        String sql = "INSERT INTO user_table VALUES ('"
+                + identifier + "', '"
+                + username + "', '"
+                + password + ")";
+
+        dbClient.update(sql, asyncResult -> {
+            dbClient.close();
+            if (asyncResult.failed()) {
+                reportQueryError(message, asyncResult.cause());
+            } else {
+                JsonObject response = new JsonObject();
+                response.put("response", "user-create-instance");
+                response.put("result", "success");
+                message.reply(response);
+            }
+        });
     }
 
     private void gameCreateInstance(Message<JsonObject> message) {
@@ -132,7 +175,6 @@ public class DatabaseVerticle extends AbstractVerticle {
         String inviteeId = message.body().getString("invitee_id");
         System.out.println("invitee_id" + inviteeId);
 
-
         String sql = "INSERT INTO game_table VALUES ('"
                 + identifier + "', '"
                 + usernameWhite + "', '"
@@ -142,13 +184,6 @@ public class DatabaseVerticle extends AbstractVerticle {
                 + usernameTurn + "', '"
                 + inviterId + "', '"
                 + inviteeId + "')";
-
-//        String sql = "INSERT INTO game_table VALUES ('" + identifier + "', '"
-//                + usernameWhite + "', '"
-//                + configurationWhite + "', '"
-//                + usernameBlack + "', '"
-//                + configurationBlack + "', "
-//                + gameStatus + ")";
 
         dbClient.update(sql, asyncResult -> {
             dbClient.close();
