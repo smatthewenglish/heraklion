@@ -16,6 +16,7 @@ import io.vertx.ext.sql.SQLConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -135,9 +136,34 @@ public class DatabaseVerticle extends AbstractVerticle {
             case "game-accept-challenge":
                 gameAcceptChallenge(message);
                 break;
+            case "game-all":
+                gameAll(message);
+                break;
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
+    }
+
+    private void gameAll(Message<JsonObject> message) {
+
+        System.out.println("----------");
+
+        String username_white = message.body().getString("username");
+
+        String sql = "SELECT identifier, username_black, game_status FROM game_table WHERE username_white = '" + username_white + "'";
+
+        dbClient.query(sql, res -> {
+            if (res.succeeded()) {
+                List<JsonArray> pages = res.result().getResults();
+
+                message.reply(new JsonObject()
+                        .put("response", "game-all")
+                        .put("result", "success")
+                        .put("game-all", pages));
+            } else {
+                reportQueryError(message, res.cause());
+            }
+        });
     }
 
     private void gameAcceptChallenge(Message<JsonObject> message) {
