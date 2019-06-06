@@ -174,7 +174,8 @@ public class DatabaseVerticle extends AbstractVerticle {
                         .collect(Collectors.toList());
                 message.reply(new JsonObject()
                         .put("response", "user-all")
-                        .put("result", new JsonArray(pages)));
+                        .put("result", "success")
+                        .put("user-all", new JsonArray(pages)));
             } else {
                 reportQueryError(message, res.cause());
             }
