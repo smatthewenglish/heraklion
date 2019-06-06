@@ -29,6 +29,8 @@ public class DatabaseVerticle extends AbstractVerticle {
 
     private enum SqlQuery {
         GAME_CREATE_TABLE,
+        GAME_ACCEPT_CHALLENGE,
+
         USER_CREATE_TABLE,
         USER_LOGIN,
         USER_ALL
@@ -45,6 +47,7 @@ public class DatabaseVerticle extends AbstractVerticle {
         queriesInputStream.close();
 
         sqlQueries.put(SqlQuery.GAME_CREATE_TABLE, queriesProps.getProperty("game-create-table"));
+        sqlQueries.put(SqlQuery.GAME_ACCEPT_CHALLENGE, queriesProps.getProperty("game-accept-challenge"));
 
         sqlQueries.put(SqlQuery.USER_CREATE_TABLE, queriesProps.getProperty("user-create-table"));
         sqlQueries.put(SqlQuery.USER_LOGIN, queriesProps.getProperty("user-login"));
@@ -129,9 +132,34 @@ public class DatabaseVerticle extends AbstractVerticle {
             case "game-create-instance":
                 gameCreateInstance(message);
                 break;
+            case "game-accept-challenge":
+                gameAcceptChallenge(message);
+                break;
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
+    }
+
+    private void gameAcceptChallenge(Message<JsonObject> message) {
+        String identifier = message.body().getString("identifier");
+        String configurationWhite = message.body().getJsonArray("configuration_white").toString();
+
+        String sql = "UPDATE game_table SET game_status = 'ONGOING', configuration_white = '"
+                + configurationWhite + "' WHERE identifier = '"
+                + identifier
+                + "'";
+
+        dbClient.update(sql, asyncResult -> {
+            dbClient.close();
+            if (asyncResult.failed()) {
+                reportQueryError(message, asyncResult.cause());
+            } else {
+                JsonObject response = new JsonObject();
+                response.put("response", "gamestate-update");
+                response.put("result", "success");
+                message.reply(response);
+            }
+        });
     }
 
     private void userAll(Message<JsonObject> message) {
@@ -229,7 +257,8 @@ public class DatabaseVerticle extends AbstractVerticle {
         String usernameWhite = message.body().getString("username_white");
         System.out.println("username_white" + usernameWhite);
 
-        String configurationWhite = message.body().getJsonArray("configuration_white").toString();
+        //String configurationWhite = message.body().getJsonArray("configuration_white").toString();
+        String configurationWhite = "DEFAULT";
         //--------
         String usernameBlack = message.body().getString("username_black");
         String configurationBlack = message.body().getJsonArray("configuration_black").toString();
@@ -245,8 +274,8 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         String sql = "INSERT INTO game_table VALUES ('"
                 + identifier + "', '"
-                + usernameWhite + "', '"
-                + configurationWhite + "', '"
+                + usernameWhite + "', "
+                + configurationWhite + ", '"
                 + usernameBlack + "', '"
                 + configurationBlack + "', '"
                 + usernameTurn + "', '"
