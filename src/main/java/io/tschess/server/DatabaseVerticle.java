@@ -139,6 +139,9 @@ public class DatabaseVerticle extends AbstractVerticle {
             case "game-all":
                 gameAll(message);
                 break;
+            case "game-update-gamestate":
+                gameUpdateGamestate(message);
+                break;
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
@@ -166,6 +169,34 @@ public class DatabaseVerticle extends AbstractVerticle {
         });
     }
 
+    private void gameUpdateGamestate(Message<JsonObject> message){
+        String identifier = message.body().getString("identifier");
+        String usernameTurn = message.body().getString("username_turn");
+        String gamestate = message.body().getJsonArray("gamestate").toString();
+
+        //UPDATE game_table SET gamestate = ' + thingWeGrabedFromNessage + ', username_turn = '+ otherThing+ ' WHERE
+        // IDENTIFIER = '+ lastThoing+';
+
+        String sql = "UPDATE game_table SET gamestate = '"
+                + gamestate + "', username_turn =  '" + usernameTurn +
+               "' WHERE identifier = '"
+                + identifier
+                + "'";
+
+        dbClient.update(sql, asyncResult -> {
+            dbClient.close();
+            if (asyncResult.failed()) {
+                reportQueryError(message, asyncResult.cause());
+            } else {
+                JsonObject response = new JsonObject();
+                response.put("response", "game-update-gamestate");
+                response.put("result", "success");
+                message.reply(response);
+            }
+        });
+
+    }
+
     private void gameAcceptChallenge(Message<JsonObject> message) {
         String identifier = message.body().getString("identifier");
         String configurationWhite = message.body().getJsonArray("configuration_white").toString();
@@ -181,7 +212,7 @@ public class DatabaseVerticle extends AbstractVerticle {
                 reportQueryError(message, asyncResult.cause());
             } else {
                 JsonObject response = new JsonObject();
-                response.put("response", "gamestate-update");
+                response.put("response", "game-accept-challenge");
                 response.put("result", "success");
                 message.reply(response);
             }
