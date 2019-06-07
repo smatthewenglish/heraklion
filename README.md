@@ -50,6 +50,11 @@ Important folder:
 /etc/postgresql/10/main
 ```
 
+Or in PostgreSQL 11.2
+```
+/usr/local/var/postgres
+```
+
 blah...
 
 ```
