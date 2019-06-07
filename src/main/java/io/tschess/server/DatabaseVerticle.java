@@ -173,10 +173,7 @@ public class DatabaseVerticle extends AbstractVerticle {
         String identifier = message.body().getString("identifier");
         String usernameTurn = message.body().getString("username_turn");
         String gamestate = message.body().getJsonArray("gamestate").toString();
-
-        //UPDATE game_table SET gamestate = ' + thingWeGrabedFromNessage + ', username_turn = '+ otherThing+ ' WHERE
-        // IDENTIFIER = '+ lastThoing+';
-
+        
         String sql = "UPDATE game_table SET gamestate = '"
                 + gamestate + "', username_turn =  '" + usernameTurn +
                "' WHERE identifier = '"
