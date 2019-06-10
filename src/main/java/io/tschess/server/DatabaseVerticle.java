@@ -151,32 +151,43 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         System.out.println("----------");
 
-        String username_white = message.body().getString("username");
+        String username = message.body().getString("username");
 
-        String sql = "SELECT identifier, username_black, game_status FROM game_table WHERE username_white = '" + username_white + "'";
+        String sql0 = "SELECT identifier, username_black, game_status FROM game_table WHERE username_white = '" + username + "'";
 
-        dbClient.query(sql, res -> {
-            if (res.succeeded()) {
-                List<JsonArray> pages = res.result().getResults();
+        dbClient.query(sql0, res0 -> {
+            if (res0.succeeded()) {
+                List<JsonArray> pages0 = res0.result().getResults();
 
-                message.reply(new JsonObject()
-                        .put("response", "game-all")
-                        .put("result", "success")
-                        .put("game-all", pages));
+                String sql1 = "SELECT identifier, username_black, game_status FROM game_table WHERE username_black = '" + username + "'";
+
+                dbClient.query(sql1, res1 -> {
+                    if (res1.succeeded()) {
+                        List<JsonArray> pages1 = res1.result().getResults();
+
+                        message.reply(new JsonObject()
+                                .put("response", "game-all")
+                                .put("result", "success")
+                                .put("username_white", pages0)
+                                .put("username_black", pages1));
+                    } else {
+                        reportQueryError(message, res0.cause());
+                    }
+                });
             } else {
-                reportQueryError(message, res.cause());
+                reportQueryError(message, res0.cause());
             }
         });
     }
 
-    private void gameUpdateGamestate(Message<JsonObject> message){
+    private void gameUpdateGamestate(Message<JsonObject> message) {
         String identifier = message.body().getString("identifier");
         String usernameTurn = message.body().getString("username_turn");
         String gamestate = message.body().getJsonArray("gamestate").toString();
-        
+
         String sql = "UPDATE game_table SET gamestate = '"
                 + gamestate + "', username_turn =  '" + usernameTurn +
-               "' WHERE identifier = '"
+                "' WHERE identifier = '"
                 + identifier
                 + "'";
 
