@@ -33,8 +33,8 @@ public class HttpServerVerticle extends AbstractVerticle {
         router.post("/game-create-instance").handler(this::gameCreateInstanceHandler);
         router.post("/game-accept-challenge").handler(this::gameAcceptChallengeHandler);
         router.post("/game-all").handler(this::gameAllHandler);
-
         router.post("/game-update-gamestate").handler(this::gameUpdateGamestateHandler);
+        router.post("/game-cancel-outbound-invitation").handler(this::gameCancelOutboundInvitation);
 
         router.post("/user-create-instance").handler(this::userCreateInstanceHandler);
         router.post("/user-login").handler(this::userLoginHandler);
@@ -105,5 +105,9 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private void gameAcceptChallengeHandler(RoutingContext context) {
         handler(context, "game-accept-challenge");
+    }
+
+    private void gameCancelOutboundInvitation(RoutingContext context) {
+        handler(context, "game-cancel-outbound-invitation");
     }
 }

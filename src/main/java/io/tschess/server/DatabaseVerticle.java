@@ -130,6 +130,9 @@ public class DatabaseVerticle extends AbstractVerticle {
                 userAll(message);
                 break;
             //* * *//
+            case "game-cancel-outbound-invitation":
+                gameCancelOutboundInvitation(message);
+                break;
             case "game-create-instance":
                 gameCreateInstance(message);
                 break;
@@ -145,6 +148,25 @@ public class DatabaseVerticle extends AbstractVerticle {
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
+    }
+
+    private void gameCancelOutboundInvitation(Message<JsonObject> message) {
+        String identifier = message.body().getString("identifier");
+
+        String sql = "DELETE FROM game_table WHERE identifier = '" + identifier + "'";
+
+        dbClient.update(sql, asyncResult -> {
+            dbClient.close();
+            if (asyncResult.failed()) {
+                reportQueryError(message, asyncResult.cause());
+            } else {
+                JsonObject response = new JsonObject();
+                response.put("response", "game-cancel-outbound-invitation");
+                response.put("result", "success");
+                message.reply(response);
+            }
+        });
+
     }
 
     private void gameAll(Message<JsonObject> message) {
@@ -166,10 +188,8 @@ public class DatabaseVerticle extends AbstractVerticle {
                         List<JsonArray> pages1 = res1.result().getResults();
 
 
-
                         System.out.println("pages0.size(): " + pages0.size());
                         System.out.println("pages1.size(): " + pages1.size());
-
 
 
                         JsonObject response = new JsonObject();
@@ -179,8 +199,7 @@ public class DatabaseVerticle extends AbstractVerticle {
                         JsonArray gameAllList = new JsonArray();
 
 
-
-                        for(int i = 0; i < pages0.size(); i++) {
+                        for (int i = 0; i < pages0.size(); i++) {
 
                             System.out.println("pages0.get(i).size(): " + pages0.get(i).size());
 
@@ -200,7 +219,7 @@ public class DatabaseVerticle extends AbstractVerticle {
                             gameAllList.add(game);
                         }
 
-                        for(int i = 0; i < pages1.size(); i++) {
+                        for (int i = 0; i < pages1.size(); i++) {
 
 
                             System.out.println("pages1.get(i).size(): " + pages1.get(i).size());
