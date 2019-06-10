@@ -165,13 +165,25 @@ public class DatabaseVerticle extends AbstractVerticle {
                     if (res1.succeeded()) {
                         List<JsonArray> pages1 = res1.result().getResults();
 
+
+
+                        System.out.println("pages0.size(): " + pages0.size());
+                        System.out.println("pages1.size(): " + pages1.size());
+
+
+
                         JsonObject response = new JsonObject();
                         response.put("response", "game-all")
                                 .put("result", "success");
 
                         JsonArray gameAllList = new JsonArray();
 
+
+
                         for(int i = 0; i < pages0.size(); i++) {
+
+                            System.out.println("pages0.get(i).size(): " + pages0.get(i).size());
+
                             JsonObject game = new JsonObject();
                             game.put("identifier", pages0.get(i).getValue(0));
                             game.put("username_white", username);
@@ -189,6 +201,10 @@ public class DatabaseVerticle extends AbstractVerticle {
                         }
 
                         for(int i = 0; i < pages1.size(); i++) {
+
+
+                            System.out.println("pages1.get(i).size(): " + pages1.get(i).size());
+
                             JsonObject game = new JsonObject();
                             game.put("identifier", pages1.get(i).getValue(0));
                             game.put("username_white", pages1.get(i).getValue(2));
