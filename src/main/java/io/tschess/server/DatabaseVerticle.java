@@ -153,23 +153,62 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         String username = message.body().getString("username");
 
-        String sql0 = "SELECT identifier, username_black, game_status FROM game_table WHERE username_white = '" + username + "'";
+        String sql0 = "SELECT identifier, configuration_white, username_black, configuration_black, username_turn, inviter_id, invitee_id, game_status, gamestate, winner FROM game_table WHERE username_white = '" + username + "'";
 
         dbClient.query(sql0, res0 -> {
             if (res0.succeeded()) {
                 List<JsonArray> pages0 = res0.result().getResults();
 
-                String sql1 = "SELECT identifier, username_black, game_status FROM game_table WHERE username_black = '" + username + "'";
+                String sql1 = "SELECT identifier, configuration_white, username_white, configuration_black, username_turn, inviter_id, invitee_id, game_status, gamestate, winner FROM game_table WHERE username_black = '" + username + "'";
 
                 dbClient.query(sql1, res1 -> {
                     if (res1.succeeded()) {
                         List<JsonArray> pages1 = res1.result().getResults();
 
-                        message.reply(new JsonObject()
-                                .put("response", "game-all")
-                                .put("result", "success")
-                                .put("username_white", pages0)
-                                .put("username_black", pages1));
+                        JsonObject response = new JsonObject();
+                        response.put("response", "game-all")
+                                .put("result", "success");
+
+                        JsonArray gameAllList = new JsonArray();
+
+                        for(int i = 0; i < pages0.size(); i++) {
+                            JsonObject game = new JsonObject();
+                            game.put("identifier", pages0.get(i).getValue(0));
+                            game.put("username_white", username);
+                            game.put("configuration_white", pages0.get(i).getValue(1));
+                            game.put("username_black", pages0.get(i).getValue(2));
+                            game.put("configuration_black", pages0.get(i).getValue(3));
+                            game.put("username_turn", pages0.get(i).getValue(4));
+                            game.put("inviter_id", pages0.get(i).getValue(5));
+                            game.put("invitee_id", pages0.get(i).getValue(6));
+                            game.put("game_status", pages0.get(i).getValue(7));
+                            game.put("gamestate", pages0.get(i).getValue(8));
+                            game.put("winner", pages0.get(i).getValue(9));
+
+                            gameAllList.add(game);
+                        }
+
+                        for(int i = 0; i < pages1.size(); i++) {
+                            JsonObject game = new JsonObject();
+                            game.put("identifier", pages1.get(i).getValue(0));
+                            game.put("username_white", pages1.get(i).getValue(2));
+                            game.put("configuration_white", pages1.get(i).getValue(1));
+                            game.put("username_black", username);
+                            game.put("configuration_black", pages1.get(i).getValue(3));
+                            game.put("username_turn", pages1.get(i).getValue(4));
+                            game.put("inviter_id", pages1.get(i).getValue(5));
+                            game.put("invitee_id", pages1.get(i).getValue(6));
+                            game.put("game_status", pages1.get(i).getValue(7));
+                            game.put("gamestate", pages1.get(i).getValue(8));
+                            game.put("winner", pages1.get(i).getValue(9));
+
+                            gameAllList.add(game);
+                        }
+
+
+                        response.put("game-all", gameAllList);
+                        message.reply(response);
+
                     } else {
                         reportQueryError(message, res0.cause());
                     }
