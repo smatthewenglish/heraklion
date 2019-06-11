@@ -288,6 +288,8 @@ public class DatabaseVerticle extends AbstractVerticle {
                 + identifier
                 + "'";
 
+        //String sql = "UPDATE game_table SET game_status = 'ONGOING' WHERE identifier = '" + identifier + "'";
+
         dbClient.update(sql, asyncResult -> {
             dbClient.close();
             if (asyncResult.failed()) {
