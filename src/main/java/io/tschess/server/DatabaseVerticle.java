@@ -330,6 +330,8 @@ public class DatabaseVerticle extends AbstractVerticle {
         JsonArray username = new JsonArray().add(message.body().getString("username"));
         String password = message.body().getString("password");
 
+
+
         dbClient.queryWithParams(
                 sqlQueries.get(SqlQuery.USER_LOGIN),
                 username,
@@ -344,6 +346,37 @@ public class DatabaseVerticle extends AbstractVerticle {
                             String retrievedPassword = resultSet.getResults().get(0).getString(0);
                             if (retrievedPassword.equals(password)) {
                                 response.put("result", "success");
+
+
+                                // CAN YOU DO TWO IN A ROW LIKE THIS????
+
+                                //SELECT identifier, configuration_white, username_white, configuration_black, username_turn,
+                                String sql = "SELECT " +
+                                        "identifier, " +
+                                        "avatar_url, " +
+                                        "elo_score, " +
+                                        "saved_configuration " +
+                                        "WHERE username = '" + username + "'";
+
+                                dbClient.query(sql, asyncResult -> {
+                                    dbClient.close();
+                                    if (asyncResult.failed()) {
+                                        reportQueryError(message, asyncResult.cause());
+                                    } else {
+
+                                        List<JsonArray> pages = asyncResult.result().getResults();
+
+                                        response.put("identifier", pages.get(0));
+                                        response.put("username", username);
+                                        response.put("avatar_url", pages.get(1));
+                                        response.put("elo_score", pages.get(2));
+                                        response.put("saved_configuration", pages.get(03));
+                                        message.reply(response);
+                                    }
+                                });
+
+                                //^^^^^^
+
                             } else {
                                 response.put("result", "password");
                             }
