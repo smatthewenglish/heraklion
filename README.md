@@ -317,4 +317,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"identifi
 ALTER TABLE user_table ADD COLUMN saved_configuration JSON DEFAULT '[{"row_0": [{"column_0": "RedRook"},{"column_1": "RedKnight"},{"column_2": "RedBishop"},{"column_3": "RedQueen"},{"column_4": "RedKing"},{"column_5": "RedBishop"},{"column_6": "RedKnight"},{"column_7": "RedRook"}]},{"row_1": [{"column_0": "RedPawn"},{"column_1": "RedPawn"},{"column_2": "RedPawn"},{"column_3": "RedPawn"},{"column_4": "RedPawn"},{"column_5": "RedPawn"},{"column_6": "RedPawn"},{"column_7": "RedPawn"}]}]';
 
 
+
+curl --header "Content-Type: application/json" --request POST --data '{"username": "sme","password": "sme"}' http://localhost:8080/user-login
+
 ```

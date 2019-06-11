@@ -356,21 +356,37 @@ public class DatabaseVerticle extends AbstractVerticle {
                                         "avatar_url, " +
                                         "elo_score, " +
                                         "saved_configuration " +
-                                        "WHERE username = '" + username + "'";
+                                        "FROM user_table " +
+                                        "WHERE username = '" + message.body().getString("username") + "'";
 
                                 dbClient.query(sql, asyncResult -> {
                                     dbClient.close();
                                     if (asyncResult.failed()) {
+
+                                        System.out.println("FUCK");
+
                                         reportQueryError(message, asyncResult.cause());
                                     } else {
 
+                                        System.out.println("999");
+
                                         List<JsonArray> pages = asyncResult.result().getResults();
 
-                                        response.put("identifier", pages.get(0));
-                                        response.put("username", username);
-                                        response.put("avatar_url", pages.get(1));
-                                        response.put("elo_score", pages.get(2));
-                                        response.put("saved_configuration", pages.get(03));
+                                        response.put("identifier", pages.get(0).getValue(0));
+                                        System.out.println("identifier " + pages.get(0).getValue(0));
+
+                                        response.put("username", message.body().getString("username"));
+                                        System.out.println("username " + message.body().getString("username"));
+
+                                        response.put("avatar_url", pages.get(0).getValue(1));
+                                        System.out.println("avatar_url " + pages.get(0).getValue(1));
+
+                                        response.put("elo_score", pages.get(0).getValue(2));
+                                        System.out.println("avatar_url " + pages.get(0).getValue(2));
+
+                                        response.put("saved_configuration", pages.get(0).getValue(3));
+                                        System.out.println("avatar_url " + pages.get(0).getValue(3));
+
                                         message.reply(response);
                                     }
                                 });
@@ -381,12 +397,10 @@ public class DatabaseVerticle extends AbstractVerticle {
                                 response.put("result", "password");
                             }
                         }
-                        message.reply(response);
                     } else {
                         reportQueryError(message, validatePasswordResult.cause());
                     }
                 });
-        dbClient.close();
     }
 
     private void userCreateInstance(Message<JsonObject> message) {
