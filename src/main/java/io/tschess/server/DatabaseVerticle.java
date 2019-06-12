@@ -199,13 +199,13 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         String username = message.body().getString("username");
 
-        String sql0 = "SELECT identifier, configuration_white, username_black, configuration_black, username_turn, inviter_id, invitee_id, game_status, gamestate, winner FROM game_table WHERE username_white = '" + username + "'";
+        String sql0 = "SELECT identifier, username_black, configuration_inviter, username_turn, inviter_id, invitee_id, game_status, gamestate, winner FROM game_table WHERE username_white = '" + username + "'";
 
         dbClient.query(sql0, res0 -> {
             if (res0.succeeded()) {
                 List<JsonArray> pages0 = res0.result().getResults();
 
-                String sql1 = "SELECT identifier, configuration_white, username_white, configuration_black, username_turn, inviter_id, invitee_id, game_status, gamestate, winner FROM game_table WHERE username_black = '" + username + "'";
+                String sql1 = "SELECT identifier, username_white, configuration_inviter, username_turn, inviter_id, invitee_id, game_status, gamestate, winner FROM game_table WHERE username_black = '" + username + "'";
 
                 dbClient.query(sql1, res1 -> {
                     if (res1.succeeded()) {
@@ -230,15 +230,14 @@ public class DatabaseVerticle extends AbstractVerticle {
                             JsonObject game = new JsonObject();
                             game.put("identifier", pages0.get(i).getValue(0));
                             game.put("username_white", username);
-                            game.put("configuration_white", pages0.get(i).getValue(1));
-                            game.put("username_black", pages0.get(i).getValue(2));
-                            game.put("configuration_black", pages0.get(i).getValue(3));
-                            game.put("username_turn", pages0.get(i).getValue(4));
-                            game.put("inviter_id", pages0.get(i).getValue(5));
-                            game.put("invitee_id", pages0.get(i).getValue(6));
-                            game.put("game_status", pages0.get(i).getValue(7));
-                            game.put("gamestate", pages0.get(i).getValue(8));
-                            game.put("winner", pages0.get(i).getValue(9));
+                            game.put("username_black", pages0.get(i).getValue(1));
+                            game.put("configuration_inviter", pages0.get(i).getValue(2));
+                            game.put("username_turn", pages0.get(i).getValue(3));
+                            game.put("inviter_id", pages0.get(i).getValue(4));
+                            game.put("invitee_id", pages0.get(i).getValue(5));
+                            game.put("game_status", pages0.get(i).getValue(6));
+                            game.put("gamestate", pages0.get(i).getValue(7));
+                            game.put("winner", pages0.get(i).getValue(8));
 
                             gameAllList.add(game);
                         }
@@ -250,16 +249,15 @@ public class DatabaseVerticle extends AbstractVerticle {
 
                             JsonObject game = new JsonObject();
                             game.put("identifier", pages1.get(i).getValue(0));
-                            game.put("username_white", pages1.get(i).getValue(2));
-                            game.put("configuration_white", pages1.get(i).getValue(1));
+                            game.put("username_white", pages1.get(i).getValue(1));
                             game.put("username_black", username);
-                            game.put("configuration_black", pages1.get(i).getValue(3));
-                            game.put("username_turn", pages1.get(i).getValue(4));
-                            game.put("inviter_id", pages1.get(i).getValue(5));
-                            game.put("invitee_id", pages1.get(i).getValue(6));
-                            game.put("game_status", pages1.get(i).getValue(7));
-                            game.put("gamestate", pages1.get(i).getValue(8));
-                            game.put("winner", pages1.get(i).getValue(9));
+                            game.put("configuration_inviter", pages1.get(i).getValue(2));
+                            game.put("username_turn", pages1.get(i).getValue(3));
+                            game.put("inviter_id", pages1.get(i).getValue(4));
+                            game.put("invitee_id", pages1.get(i).getValue(5));
+                            game.put("game_status", pages1.get(i).getValue(6));
+                            game.put("gamestate", pages1.get(i).getValue(7));
+                            game.put("winner", pages1.get(i).getValue(8));
 
                             gameAllList.add(game);
                         }
@@ -311,8 +309,6 @@ public class DatabaseVerticle extends AbstractVerticle {
                 + configurationWhite + "' WHERE identifier = '"
                 + identifier
                 + "'";
-
-        //String sql = "UPDATE game_table SET game_status = 'ONGOING' WHERE identifier = '" + identifier + "'";
 
         dbClient.update(sql, asyncResult -> {
             dbClient.close();
@@ -371,10 +367,6 @@ public class DatabaseVerticle extends AbstractVerticle {
                             if (retrievedPassword.equals(password)) {
                                 response.put("result", "success");
 
-
-                                // CAN YOU DO TWO IN A ROW LIKE THIS????
-
-                                //SELECT identifier, configuration_white, username_white, configuration_black, username_turn,
                                 String sql = "SELECT " +
                                         "identifier, " +
                                         "avatar_url, " +
@@ -469,12 +461,9 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         String usernameWhite = message.body().getString("username_white");
         System.out.println("username_white" + usernameWhite);
-
-        //String configurationWhite = message.body().getJsonArray("configuration_white").toString();
-        String configurationWhite = "DEFAULT";
         //--------
         String usernameBlack = message.body().getString("username_black");
-        String configurationBlack = message.body().getJsonArray("configuration_black").toString();
+        String configurationInviter = message.body().getJsonArray("configuration_inviter").toString();
         //--------
         String usernameTurn = message.body().getString("username_turn");
         System.out.println("username_turn" + usernameTurn);
@@ -488,9 +477,8 @@ public class DatabaseVerticle extends AbstractVerticle {
         String sql = "INSERT INTO game_table VALUES ('"
                 + identifier + "', '"
                 + usernameWhite + "', "
-                + configurationWhite + ", '"
                 + usernameBlack + "', '"
-                + configurationBlack + "', '"
+                + configurationInviter + "', '"
                 + usernameTurn + "', '"
                 + inviterId + "', '"
                 + inviteeId + "')";
