@@ -145,9 +145,33 @@ public class DatabaseVerticle extends AbstractVerticle {
             case "game-update-gamestate":
                 gameUpdateGamestate(message);
                 break;
+            case "user-update-saved-configuration":
+                userUpdateConfiguration(message);
+                break;
             default:
                 message.fail(ErrorCodes.BAD_ACTION.ordinal(), "Bad action: " + action);
         }
+    }
+
+    private void userUpdateConfiguration(Message<JsonObject> message){
+        String username = message.body().getString("username");
+        JsonArray savedConfiguration = message.body().getJsonArray("saved_configuration");
+
+        String sql = "UPDATE user_table SET saved_configuration = '"
+                + savedConfiguration + "' WHERE username =  '"
+                + username + "'";
+
+        dbClient.update(sql, asyncResult -> {
+            dbClient.close();
+            if (asyncResult.failed()) {
+                reportQueryError(message, asyncResult.cause());
+            } else {
+                JsonObject response = new JsonObject();
+                response.put("response", "user-update-saved-configuration");
+                response.put("result", "success");
+                message.reply(response);
+            }
+        });
     }
 
     private void gameCancelOutboundInvitation(Message<JsonObject> message) {
