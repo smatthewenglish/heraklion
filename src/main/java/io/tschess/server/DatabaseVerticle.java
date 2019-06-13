@@ -129,7 +129,7 @@ public class DatabaseVerticle extends AbstractVerticle {
             case "user-all":
                 userAll(message);
                 break;
-            //* * *//
+            //* * *//game-update-gamestate
             case "game-cancel-outbound-invitation":
                 gameCancelOutboundInvitation(message);
                 break;
