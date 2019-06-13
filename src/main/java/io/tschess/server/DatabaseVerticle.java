@@ -347,16 +347,8 @@ public class DatabaseVerticle extends AbstractVerticle {
                         game.put("gamestate", pages.get(0).getValue(8));
                         game.put("winner", pages.get(0).getValue(9));
 
-//                        List<String> pages = asyncResult1.result()
-//                                .getResults()
-//                                .stream()
-//                                .map(json -> json.getString(0))
-//                                .sorted()
-//                                .collect(Collectors.toList());
-//                        message.reply(new JsonObject()
-//                                .put("response", "user-all")
-//                                .put("result", "success")
-//                                .put("user-all", new JsonArray(pages)));
+                        message.reply(game);
+
                     } else {
                         reportQueryError(message, asyncResult0.cause());
                     }
