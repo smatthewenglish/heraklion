@@ -36,6 +36,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         router.post("/game-update-gamestate").handler(this::gameUpdateGamestateHandler);
         router.post("/game-cancel-outbound-invitation").handler(this::gameCancelOutboundInvitation);
 
+        router.post("/user-discovery-search-target").handler(this::userDiscoverySearchTarget);
         router.post("/user-create-instance").handler(this::userCreateInstanceHandler);
         router.post("/user-login").handler(this::userLoginHandler);
         router.post("/user-all").handler(this::userAllHandler);
@@ -76,6 +77,10 @@ public class HttpServerVerticle extends AbstractVerticle {
                 routingContext.fail(asyncResult.cause());
             }
         });
+    }
+
+    public void userDiscoverySearchTarget(RoutingContext context){
+        handler(context, "user-discovery-search-target");
     }
 
     private void userCreateInstanceHandler(RoutingContext context) {

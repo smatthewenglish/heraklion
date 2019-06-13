@@ -120,6 +120,9 @@ public class DatabaseVerticle extends AbstractVerticle {
         String action = message.headers().get("action");
 
         switch (action) {
+            case "user-discovery-search-target":
+                userDiscoverySearchTarget(message);
+                break;
             case "user-create-instance":
                 userCreateInstance(message);
                 break;
@@ -153,7 +156,41 @@ public class DatabaseVerticle extends AbstractVerticle {
         }
     }
 
-    private void userUpdateConfiguration(Message<JsonObject> message){
+    private void userDiscoverySearchTarget(Message<JsonObject> message) {
+
+        String username = message.body().getString("username");
+
+        String sql = "SELECT " +
+                "identifier, " +
+                "username " +
+                "avatar_url " +
+                "elo_score " +
+                "FROM user_table " +
+                "WHERE username = '" + username + "'";
+
+        dbClient.query(sql, asyncResult -> {
+            if (asyncResult.succeeded()) {
+                List<JsonArray> pages = asyncResult.result().getResults();
+
+                JsonObject discovery = new JsonObject();
+
+                discovery.put("response", "user-discovery-search-target")
+                        .put("result", "success");
+
+                discovery.put("identifier", pages.get(0).getValue(0));
+                discovery.put("username", pages.get(0).getValue(1));
+                discovery.put("avatar_url", pages.get(0).getValue(2));
+                discovery.put("elo_score", pages.get(0).getValue(3));
+
+                message.reply(discovery);
+
+            } else {
+                reportQueryError(message, asyncResult.cause());
+            }
+        });
+    }
+
+    private void userUpdateConfiguration(Message<JsonObject> message) {
         String username = message.body().getString("username");
         JsonArray savedConfiguration = message.body().getJsonArray("saved_configuration");
 
@@ -386,7 +423,6 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         JsonArray username = new JsonArray().add(message.body().getString("username"));
         String password = message.body().getString("password");
-
 
 
         dbClient.queryWithParams(
