@@ -303,24 +303,69 @@ public class DatabaseVerticle extends AbstractVerticle {
 
     private void gameAcceptChallenge(Message<JsonObject> message) {
         String identifier = message.body().getString("identifier");
-        String configurationWhite = message.body().getJsonArray("configuration_white").toString();
 
-        String sql = "UPDATE game_table SET game_status = 'ONGOING', configuration_white = '"
-                + configurationWhite + "' WHERE identifier = '"
+        String sql0 = "UPDATE game_table SET game_status = 'ONGOING' WHERE identifier = '"
                 + identifier
                 + "'";
 
-        dbClient.update(sql, asyncResult -> {
+        dbClient.update(sql0, asyncResult0 -> {
             dbClient.close();
-            if (asyncResult.failed()) {
-                reportQueryError(message, asyncResult.cause());
+            if (asyncResult0.failed()) {
+                reportQueryError(message, asyncResult0.cause());
             } else {
-                JsonObject response = new JsonObject();
-                response.put("response", "game-accept-challenge");
-                response.put("result", "success");
-                message.reply(response);
+
+                String sql1 = "SELECT " +
+                        "identifier, " +
+                        "username_white, " +
+                        "username_black, " +
+                        "configuration_inviter, " +
+                        "username_turn, " +
+                        "inviter_id, " +
+                        "invitee_id, " +
+                        "game_status, " +
+                        "gamestate, " +
+                        "winner " +
+                        "FROM game_table " +
+                        "WHERE identifier = '" + identifier + "'";
+
+                dbClient.query(sql1, asyncResult1 -> {
+                    if (asyncResult1.succeeded()) {
+
+                        List<JsonArray> pages = asyncResult1.result().getResults();
+
+                        JsonObject game = new JsonObject();
+                        game.put("response", "game-accept-challenge");
+                        game.put("result", "success");
+                        game.put("identifier", pages.get(0).getValue(0));
+                        game.put("username_white", pages.get(0).getValue(1));
+                        game.put("username_black", pages.get(0).getValue(2));
+                        game.put("configuration_inviter", pages.get(0).getValue(3));
+                        game.put("username_turn", pages.get(0).getValue(4));
+                        game.put("inviter_id", pages.get(0).getValue(5));
+                        game.put("invitee_id", pages.get(0).getValue(6));
+                        game.put("game_status", pages.get(0).getValue(7));
+                        game.put("gamestate", pages.get(0).getValue(8));
+                        game.put("winner", pages.get(0).getValue(9));
+
+//                        List<String> pages = asyncResult1.result()
+//                                .getResults()
+//                                .stream()
+//                                .map(json -> json.getString(0))
+//                                .sorted()
+//                                .collect(Collectors.toList());
+//                        message.reply(new JsonObject()
+//                                .put("response", "user-all")
+//                                .put("result", "success")
+//                                .put("user-all", new JsonArray(pages)));
+                    } else {
+                        reportQueryError(message, res.cause());
+                    }
+                });
+
             }
         });
+
+
     }
 
     private void userAll(Message<JsonObject> message) {
