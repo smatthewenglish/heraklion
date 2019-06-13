@@ -358,7 +358,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 //                                .put("result", "success")
 //                                .put("user-all", new JsonArray(pages)));
                     } else {
-                        reportQueryError(message, res.cause());
+                        reportQueryError(message, asyncResult0.cause());
                     }
                 });
 
